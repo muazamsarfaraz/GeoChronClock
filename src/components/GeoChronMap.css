@@ -205,26 +205,35 @@
 @media (max-width: 480px) {
   .map-overlay.top-right,
   .map-overlay.bottom-left {
-    position: static;
-    margin: 5px 0;
-    width: 100%;
-  }
-
-  .geochron-map {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .map-container {
-    order: 1;
-    height: calc(100% - 80px);
+    position: absolute;
+    margin: 5px;
+    z-index: 1000;
+    background-color: rgba(40, 44, 52, 0.8);
+    border-radius: 4px;
+    padding: 5px;
   }
 
   .map-overlay.top-right {
-    order: 0;
+    top: 5px;
+    right: 5px;
+    max-width: 120px;
   }
 
   .map-overlay.bottom-left {
-    order: 2;
+    bottom: 40px;
+    left: 5px;
+    max-width: 150px;
+  }
+
+  /* Ensure the map container takes full height */
+  .map-container {
+    height: 100% !important;
+    min-height: 250px !important;
+  }
+
+  /* Make sure the map is visible */
+  .leaflet-container {
+    visibility: visible !important;
+    display: block !important;
   }
 }

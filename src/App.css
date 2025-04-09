@@ -133,17 +133,17 @@ footer {
   border-top: 1px solid var(--border-color);
 }
 
-/* Responsive design */
-@media (min-width: 1200px) {
-  /* Large desktop layout */
+/* Responsive design - Two-row layout for all screen sizes */
+@media (min-width: 768px) {
+  /* Desktop layout */
   main {
-    flex-direction: row;
-    flex-wrap: wrap;
+    flex-direction: column;
   }
 
   .geochron-container {
-    flex: 3;
+    width: 100%;
     min-height: 500px;
+    order: 1;
   }
 
   .timezone-selector-container {
@@ -153,8 +153,9 @@ footer {
   }
 
   .clocks-container {
-    flex: 2;
-    margin-left: 1.5rem;
+    width: 100%;
+    order: 2;
+    margin-top: 1.5rem;
   }
 }
 
@@ -175,17 +176,27 @@ footer {
     font-size: 2rem;
   }
 
+  main {
+    flex-direction: column;
+  }
+
   .geochron-container {
     min-height: 300px;
+    width: 100%;
+    order: 1;
   }
 
   .clocks-container {
     min-height: 200px;
     padding: 1rem;
+    width: 100%;
+    order: 2;
   }
 
   .timezone-selector-container {
     margin: 0.75rem 0;
+    order: 3;
+    width: 100%;
   }
 }
 
@@ -209,6 +220,8 @@ footer {
 
   .geochron-container {
     min-height: 250px;
+    display: block !important;
+    visibility: visible !important;
   }
 
   .clocks-container {
@@ -219,5 +232,12 @@ footer {
     padding: 1rem 0;
     margin-top: 1rem;
     font-size: 0.8rem;
+  }
+
+  /* Force map to be visible */
+  .leaflet-container {
+    display: block !important;
+    visibility: visible !important;
+    min-height: 250px;
   }
 }
