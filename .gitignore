@@ -5,25 +5,48 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 dev-debug.log
+lerna-debug.log*
 
 # Dependency directories
 node_modules/
+dist/
+dist-ssr/
+*.local
 
 # Environment variables
 .env
+.env.*
+!.env.example
 
 # Editor directories and files
-.idea
-.vscode
+.idea/
+.vscode/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+.cursor/
+.windsurfrules
 
 # OS specific
 .DS_Store
+Thumbs.db
+
+# Build files
+/build/
+/coverage/
 
 # Task files
 tasks.json
-tasks/ 
+tasks/
+scripts/task-complexity-report.json
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Duplicate README files
+GeoChronClock-README.md
+GeoChronClock_README.md
