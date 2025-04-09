@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "server": "node src/backend/server.js",
-    "start": "node dev.js",
+    "start": "node src/backend/server.js",
     "start:concurrent": "concurrently \"npm run server\" \"npm run dev\"",
     "task-dev": "node scripts/dev.js",
     "task-list": "node scripts/dev.js list",
