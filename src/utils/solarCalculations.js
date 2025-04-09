@@ -150,7 +150,7 @@ export const getEquationOfTime = (julianCentury, geometricMeanLongitude, geometr
   const M = geometricMeanAnomaly;
   const e = eccentricity;
 
-  const y = Math.tan(toRadians(23.439291 - julianCentury * (0.013004167 + julianCentury * (0.0000001639 + julianCentury * 0.0000005036))) / 2);
+  let y = Math.tan(toRadians(23.439291 - julianCentury * (0.013004167 + julianCentury * (0.0000001639 + julianCentury * 0.0000005036))) / 2);
   y *= y;
 
   return 4 * toDegrees(
