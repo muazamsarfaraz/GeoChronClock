@@ -118,32 +118,36 @@ const DayNightOverlay = ({ date = new Date() }) => {
       const subsolarPoint = getSubsolarPoint(date);
       console.log('Subsolar point:', subsolarPoint);
 
-      // The night side is opposite to the subsolar point
-      // If subsolar longitude is positive, the western hemisphere (-180 to 0) is in darkness
-      // If subsolar longitude is negative, the eastern hemisphere (0 to 180) is in darkness
-      const isEasternHemisphereDark = subsolarPoint.longitude > 0;
-      console.log('Is eastern hemisphere dark:', isEasternHemisphereDark);
-
       // Create a polygon that covers the night side of the Earth
-      // We need to create a complete polygon by adding points along the map edges
       const nightCoordinates = [];
 
-      // Add the terminator points (the day/night boundary)
-      nightCoordinates.push(...terminatorPoints);
+      // First, determine which side of the terminator is in darkness
+      // We'll use the subsolar point as a reference
+      const testPoint = [-subsolarPoint.longitude, 0]; // Point opposite to subsolar point
 
-      // Complete the polygon by adding points along the appropriate edge of the map
-      if (isEasternHemisphereDark) {
-        // Add points to cover the eastern hemisphere (0 to 180)
-        nightCoordinates.push([180, -90]); // Bottom right
-        nightCoordinates.push([180, 90]);  // Top right
-        nightCoordinates.push([0, 90]);    // Top center
-        nightCoordinates.push([0, -90]);   // Bottom center
-      } else {
-        // Add points to cover the western hemisphere (-180 to 0)
-        nightCoordinates.push([0, -90]);   // Bottom center
-        nightCoordinates.push([0, 90]);    // Top center
-        nightCoordinates.push([-180, 90]); // Top left
+      // Add the terminator points (the day/night boundary)
+      // We need to ensure they're in the correct order
+      const sortedTerminator = [...terminatorPoints].sort((a, b) => a[0] - b[0]);
+
+      // Create a complete polygon by adding points at the poles
+      // This creates a closed shape that covers the night side
+      nightCoordinates.push([sortedTerminator[0][0], -90]); // South pole at western edge
+
+      // Add all terminator points
+      nightCoordinates.push(...sortedTerminator);
+
+      // Complete the polygon by adding the eastern edge and back to start
+      nightCoordinates.push([sortedTerminator[sortedTerminator.length-1][0], -90]); // South pole at eastern edge
+
+      // Add points to wrap around the map edges if needed
+      if (sortedTerminator[0][0] > -180) {
         nightCoordinates.push([-180, -90]); // Bottom left
+        nightCoordinates.push([-180, 90]);  // Top left
+      }
+
+      if (sortedTerminator[sortedTerminator.length-1][0] < 180) {
+        nightCoordinates.push([180, 90]);  // Top right
+        nightCoordinates.push([180, -90]); // Bottom right
       }
 
       // Create the polygon with a gradient fill

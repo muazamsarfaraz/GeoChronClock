@@ -299,40 +299,66 @@ export const calculateTerminator = (date = new Date(), resolution = 360) => {
   while (normalizedSubsolarLng > 180) normalizedSubsolarLng -= 360;
   while (normalizedSubsolarLng < -180) normalizedSubsolarLng += 360;
 
-  console.log('Terminator calculation:', {
-    date: date.toISOString(),
-    subsolarLat,
-    subsolarLng: normalizedSubsolarLng,
-    declination,
-    equationOfTime
-  });
+  // Generate points along the terminator
+  // We'll use a higher resolution near the equator and lower near the poles
+  const points = [];
 
-  // Generate points along the terminator with adaptive resolution
+  // First, calculate the antipode (opposite point) of the subsolar point
+  const antiLat = -subsolarLat;
+  let antiLng = normalizedSubsolarLng + 180;
+  if (antiLng > 180) antiLng -= 360;
+
+  // Generate points along the terminator (which is a great circle 90° from the subsolar point)
   for (let i = 0; i <= resolution; i++) {
-    const lng = i * 360 / resolution - 180;
+    // Use a non-linear distribution to get more points near the equator
+    const t = i / resolution;
+    const angle = t * 360; // Angle around the great circle (0-360)
 
-    // Calculate the latitude of the terminator at this longitude
-    // This is the great circle 90 degrees from the subsolar point
-    const latRad = Math.atan(-Math.cos(toRadians(lng - normalizedSubsolarLng)) / Math.tan(toRadians(subsolarLat)));
-    let lat = toDegrees(latRad);
+    // Convert to 3D coordinates (unit sphere)
+    // Start with the subsolar point as the north pole
+    const phi = toRadians(angle);
+    const theta = toRadians(90); // 90 degrees from subsolar point
 
-    // Apply a small correction for better accuracy near the poles
-    if (Math.abs(lat) > 80) {
-      // Limit the maximum latitude to avoid extreme values
-      lat = Math.sign(lat) * Math.min(Math.abs(lat), 89.5);
+    // Calculate 3D coordinates
+    const x = Math.sin(theta) * Math.cos(phi);
+    const y = Math.sin(theta) * Math.sin(phi);
+    const z = Math.cos(theta);
+
+    // Rotate the coordinates so the subsolar point is at its actual position
+    // This is a simplified rotation - we're rotating around the axes
+    const subsolarLatRad = toRadians(subsolarLat);
+    const subsolarLngRad = toRadians(normalizedSubsolarLng);
+
+    // Apply rotations (this is a simplified approximation)
+    const x2 = x * Math.cos(subsolarLngRad) - y * Math.sin(subsolarLngRad);
+    const y2 = x * Math.sin(subsolarLngRad) + y * Math.cos(subsolarLngRad);
+    const z2 = z;
+
+    const x3 = x2 * Math.cos(subsolarLatRad) + z2 * Math.sin(subsolarLatRad);
+    const y3 = y2;
+    const z3 = -x2 * Math.sin(subsolarLatRad) + z2 * Math.cos(subsolarLatRad);
+
+    // Convert back to lat/lng
+    let lat = toDegrees(Math.asin(z3));
+    let lng = toDegrees(Math.atan2(y3, x3));
+
+    // Handle edge cases and limit values
+    if (isNaN(lat) || !isFinite(lat)) {
+      lat = Math.sign(z3) * 89.9;
     }
 
-    // Skip invalid points (can happen near the poles)
-    if (isNaN(lat)) continue;
+    if (isNaN(lng) || !isFinite(lng)) {
+      continue; // Skip this point
+    }
 
-    // Add the point to the terminator
-    terminatorPoints.push([lng, lat]);
+    // Add the point
+    points.push([lng, lat]);
   }
 
-  // Sort points by longitude to ensure proper rendering
-  terminatorPoints.sort((a, b) => a[0] - b[0]);
+  // Sort points by longitude for proper rendering
+  points.sort((a, b) => a[0] - b[0]);
 
-  return terminatorPoints;
+  return points;
 };
 
 /**
