@@ -65,12 +65,14 @@ main {
 /* GeoChron map container */
 .geochron-container {
   flex: 2;
+  height: 450px;
   min-height: 450px;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   overflow: hidden;
   box-shadow: var(--box-shadow);
   transition: all var(--transition-speed) ease;
+  display: block !important;
 }
 
 /* Timezone selector container */
@@ -181,9 +183,11 @@ footer {
   }
 
   .geochron-container {
+    height: 300px;
     min-height: 300px;
     width: 100%;
     order: 1;
+    display: block !important;
   }
 
   .clocks-container {
@@ -219,9 +223,11 @@ footer {
   }
 
   .geochron-container {
+    height: 250px;
     min-height: 250px;
     display: block !important;
     visibility: visible !important;
+    position: relative;
   }
 
   .clocks-container {

@@ -114,8 +114,13 @@ const GeoChronMap = () => {
   // Detect if we're on a mobile device
   const isMobile = window.innerWidth <= 768;
 
+  // Log map initialization for debugging
+  useEffect(() => {
+    console.log('GeoChronMap component rendering, isMobile:', isMobile);
+  }, []);
+
   return (
-    <div className="geochron-map">
+    <div className="geochron-map" style={{ height: '100%', minHeight: '450px' }}>
       <MapContainer
         ref={mapRef}
         center={[20, 0]}
@@ -127,6 +132,7 @@ const GeoChronMap = () => {
         className="map-container"
         scrollWheelZoom={true}
         dragging={true}
+        style={{ height: '100%', minHeight: '450px' }}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
