@@ -294,21 +294,36 @@ export const calculateTerminator = (date = new Date(), resolution = 360) => {
   const solarTime = date.getUTCHours() * 60 + date.getUTCMinutes() + date.getUTCSeconds() / 60;
   const subsolarLng = (solarTime - 720) / 4 - equationOfTime / 60;
 
+  // Normalize the subsolar longitude to -180 to 180
+  let normalizedSubsolarLng = subsolarLng;
+  while (normalizedSubsolarLng > 180) normalizedSubsolarLng -= 360;
+  while (normalizedSubsolarLng < -180) normalizedSubsolarLng += 360;
+
+  console.log('Terminator calculation:', {
+    date: date.toISOString(),
+    subsolarLat,
+    subsolarLng: normalizedSubsolarLng,
+    declination,
+    equationOfTime
+  });
+
   // Generate points along the terminator with adaptive resolution
-  // Use higher resolution near the poles for better accuracy
-  for (let i = 0; i < resolution; i++) {
+  for (let i = 0; i <= resolution; i++) {
     const lng = i * 360 / resolution - 180;
 
     // Calculate the latitude of the terminator at this longitude
-    const latRad = Math.atan(-Math.cos(toRadians(lng - subsolarLng)) / Math.tan(toRadians(subsolarLat)));
+    // This is the great circle 90 degrees from the subsolar point
+    const latRad = Math.atan(-Math.cos(toRadians(lng - normalizedSubsolarLng)) / Math.tan(toRadians(subsolarLat)));
     let lat = toDegrees(latRad);
 
     // Apply a small correction for better accuracy near the poles
-    // This helps smooth out the terminator line
     if (Math.abs(lat) > 80) {
       // Limit the maximum latitude to avoid extreme values
       lat = Math.sign(lat) * Math.min(Math.abs(lat), 89.5);
     }
+
+    // Skip invalid points (can happen near the poles)
+    if (isNaN(lat)) continue;
 
     // Add the point to the terminator
     terminatorPoints.push([lng, lat]);

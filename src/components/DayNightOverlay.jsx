@@ -111,43 +111,62 @@ const DayNightOverlay = ({ date = new Date() }) => {
 
   // Create a polygon for the night side
   const createNightPolygon = (terminatorPoints) => {
-    // Create a polygon that covers the night side of the Earth
-    const nightCoordinates = [...terminatorPoints];
+    try {
+      console.log('Creating night polygon with terminator points:', terminatorPoints.length);
 
-    // Add points along the edges of the map to complete the polygon
-    // This depends on which side of the Earth is in darkness
-    const firstPoint = terminatorPoints[0];
-    const lastPoint = terminatorPoints[terminatorPoints.length - 1];
+      // Get the subsolar point to determine which side is in darkness
+      const subsolarPoint = getSubsolarPoint(date);
+      console.log('Subsolar point:', subsolarPoint);
 
-    // Calculate the average longitude of the terminator points
-    const sumLongitudes = terminatorPoints.reduce((sum, point) => sum + point[0], 0);
-    const avgLongitude = sumLongitudes / terminatorPoints.length;
+      // The night side is opposite to the subsolar point
+      // If subsolar longitude is positive, the western hemisphere (-180 to 0) is in darkness
+      // If subsolar longitude is negative, the eastern hemisphere (0 to 180) is in darkness
+      const isEasternHemisphereDark = subsolarPoint.longitude > 0;
+      console.log('Is eastern hemisphere dark:', isEasternHemisphereDark);
 
-    // Determine which side of the Earth is in darkness based on the average longitude
-    // If average longitude is positive, the western hemisphere is in darkness
-    // If average longitude is negative, the eastern hemisphere is in darkness
-    const isWesternHemisphereDark = avgLongitude > 0;
+      // Create a polygon that covers the night side of the Earth
+      // We need to create a complete polygon by adding points along the map edges
+      const nightCoordinates = [];
 
-    if (isWesternHemisphereDark) {
-      // Add points to cover the western hemisphere
-      nightCoordinates.push([-180, -90]); // Bottom left
-      nightCoordinates.push([-180, 90]);  // Top left
-    } else {
-      // Add points to cover the eastern hemisphere
-      nightCoordinates.push([180, -90]);  // Bottom right
-      nightCoordinates.push([180, 90]);   // Top right
+      // Add the terminator points (the day/night boundary)
+      nightCoordinates.push(...terminatorPoints);
+
+      // Complete the polygon by adding points along the appropriate edge of the map
+      if (isEasternHemisphereDark) {
+        // Add points to cover the eastern hemisphere (0 to 180)
+        nightCoordinates.push([180, -90]); // Bottom right
+        nightCoordinates.push([180, 90]);  // Top right
+        nightCoordinates.push([0, 90]);    // Top center
+        nightCoordinates.push([0, -90]);   // Bottom center
+      } else {
+        // Add points to cover the western hemisphere (-180 to 0)
+        nightCoordinates.push([0, -90]);   // Bottom center
+        nightCoordinates.push([0, 90]);    // Top center
+        nightCoordinates.push([-180, 90]); // Top left
+        nightCoordinates.push([-180, -90]); // Bottom left
+      }
+
+      // Create the polygon with a gradient fill
+      const nightPolygon = L.polygon(nightCoordinates, {
+        color: '#001a33',
+        weight: 0,
+        fillColor: '#001a33',
+        fillOpacity: 0.6,
+        className: 'night-overlay'
+      });
+
+      return nightPolygon;
+    } catch (error) {
+      console.error('Error creating night polygon:', error);
+      // Return a fallback polygon if there's an error
+      return L.polygon([[-180, -90], [-180, 90], [180, 90], [180, -90]], {
+        color: '#001a33',
+        weight: 0,
+        fillColor: '#001a33',
+        fillOpacity: 0.3,
+        className: 'night-overlay-fallback'
+      });
     }
-
-    // Create the polygon with a gradient fill
-    const nightPolygon = L.polygon(nightCoordinates, {
-      color: '#001a33',
-      weight: 0,
-      fillColor: '#001a33',
-      fillOpacity: 0.6,
-      className: 'night-overlay'
-    });
-
-    return nightPolygon;
   };
 
   // Create a line for the terminator (day/night boundary)

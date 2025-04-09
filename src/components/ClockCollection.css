@@ -130,16 +130,29 @@
   border-radius: 4px;
 }
 
+/* Highlight effect for duplicate clocks */
+@keyframes highlight-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 165, 0, 0.7); }
+  70% { box-shadow: 0 0 0 15px rgba(255, 165, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 165, 0, 0); }
+}
+
+.highlight-clock {
+  animation: highlight-pulse 1.5s ease-out 2;
+  border: 2px solid orange;
+  border-radius: 8px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .clocks-container.grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   }
-  
+
   .collection-header h3 {
     font-size: 1rem;
   }
-  
+
   .layout-button {
     padding: 0.2rem 0.4rem;
     font-size: 0.9rem;

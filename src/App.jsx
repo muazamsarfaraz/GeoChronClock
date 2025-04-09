@@ -35,6 +35,25 @@ function App() {
   }, []);
 
   const handleAddClock = (timezone, customLabel = '') => {
+    // Check if a clock with this timezone already exists
+    const isDuplicate = customClocks.some(clock => clock.timezone === timezone);
+
+    if (isDuplicate) {
+      // Show a notification or alert that this timezone already exists
+      console.warn(`Clock for timezone ${timezone} already exists`);
+
+      // Find the duplicate clock and flash it to highlight it
+      const duplicateClockElement = document.querySelector(`[data-timezone="${timezone}"]`);
+      if (duplicateClockElement) {
+        duplicateClockElement.classList.add('highlight-clock');
+        setTimeout(() => {
+          duplicateClockElement.classList.remove('highlight-clock');
+        }, 2000);
+      }
+
+      return false;
+    }
+
     // Generate a label if none provided
     const label = customLabel || timezone.split('/').pop().replace('_', ' ');
 
@@ -51,6 +70,8 @@ function App() {
     saveConfiguration(updatedClocks).catch(error => {
       console.error('Error saving configuration:', error);
     });
+
+    return true;
   };
 
   const handleRemoveClock = (clockId) => {

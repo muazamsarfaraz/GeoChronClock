@@ -5,34 +5,34 @@ import './ClockCollection.css';
 /**
  * ClockCollection Component
  * Displays a collection of analog clocks for different timezones
- * 
+ *
  * @param {Object} props - Component props
  * @param {Array} props.clocks - Array of clock objects with timezone and label
  * @param {Function} props.onRemoveClock - Function to call when a clock is removed
  */
 const ClockCollection = ({ clocks = [], onRemoveClock }) => {
   const [layout, setLayout] = useState('grid'); // 'grid' or 'carousel'
-  
+
   // Define different themes for variety
   const themes = ['light', 'dark', 'colorful'];
-  
+
   const getClockTheme = (index) => {
     return themes[index % themes.length];
   };
-  
+
   return (
     <div className="clock-collection">
       <div className="collection-header">
         <h3>Custom Clocks</h3>
         <div className="layout-controls">
-          <button 
+          <button
             className={`layout-button ${layout === 'grid' ? 'active' : ''}`}
             onClick={() => setLayout('grid')}
             title="Grid Layout"
           >
             <span className="grid-icon">⊞</span>
           </button>
-          <button 
+          <button
             className={`layout-button ${layout === 'carousel' ? 'active' : ''}`}
             onClick={() => setLayout('carousel')}
             title="Carousel Layout"
@@ -41,7 +41,7 @@ const ClockCollection = ({ clocks = [], onRemoveClock }) => {
           </button>
         </div>
       </div>
-      
+
       {clocks.length === 0 ? (
         <div className="no-clocks-message">
           No custom clocks added. Use the timezone selector to add clocks.
@@ -49,8 +49,8 @@ const ClockCollection = ({ clocks = [], onRemoveClock }) => {
       ) : (
         <div className={`clocks-container ${layout}`}>
           {clocks.map((clock, index) => (
-            <div key={clock.id} className="clock-item">
-              <AnalogClock 
+            <div key={clock.id} className="clock-item" data-timezone={clock.timezone}>
+              <AnalogClock
                 timezone={clock.timezone}
                 label={clock.label}
                 size={layout === 'grid' ? 'medium' : 'large'}
@@ -59,7 +59,7 @@ const ClockCollection = ({ clocks = [], onRemoveClock }) => {
                 showDigitalTime={true}
               />
               {onRemoveClock && (
-                <button 
+                <button
                   className="remove-clock-button"
                   onClick={() => onRemoveClock(clock.id)}
                   title="Remove Clock"
