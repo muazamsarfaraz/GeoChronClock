@@ -1,0 +1,109 @@
+.city-pin {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.city-pin-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.city-pin-time {
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+  margin-bottom: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.city-pin.day .city-pin-time {
+  background-color: rgba(0, 102, 204, 0.8);
+}
+
+.city-pin.night .city-pin-time {
+  background-color: rgba(51, 51, 102, 0.8);
+}
+
+.city-pin-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: white;
+  border: 2px solid rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+.city-pin.day .city-pin-dot {
+  background-color: #ffcc00;
+  border-color: #ff9900;
+}
+
+.city-pin.night .city-pin-dot {
+  background-color: #3366cc;
+  border-color: #003366;
+}
+
+.city-pin-dot::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 10px solid rgba(0, 0, 0, 0.5);
+  z-index: -1;
+}
+
+/* City popup styles */
+.city-popup .leaflet-popup-content-wrapper {
+  background-color: rgba(40, 44, 52, 0.9);
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+}
+
+.city-popup .leaflet-popup-tip {
+  background-color: rgba(40, 44, 52, 0.9);
+}
+
+.city-popup-content {
+  padding: 5px;
+  text-align: center;
+}
+
+.city-popup-content h3 {
+  margin: 0 0 5px 0;
+  font-size: 16px;
+  color: #ffffff;
+}
+
+.city-time {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 5px 0;
+  font-family: monospace;
+}
+
+.city-timezone {
+  font-size: 12px;
+  color: #cccccc;
+  margin: 3px 0;
+}
+
+.city-daynight {
+  margin: 5px 0 0 0;
+  font-size: 14px;
+}

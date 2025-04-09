@@ -1,0 +1,94 @@
+<context>
+# Overview  
+The GeoChron Clock is a single-page web application that visually represents global time zones and day/night cycles on a world map (“GeoChron”), along with multiple optional analog clocks for selected time zones. The core value is to provide users with a clear, real-time view of major city time zones (London, New York, Dubai, Japan) and enable them to manage and persistently save additional custom clocks. It solves the problem of quickly referencing different world times in a single, intuitive interface, particularly useful for users who coordinate meetings or events across multiple time zones.
+
+# Core Features  
+1. **GeoChron Display**  
+   - **What It Does**: Shows a world map at the top of the page with a dynamic day/night gradient. Major cities (London, New York, Dubai, Japan) are pinned with current local times.  
+   - **Why It's Important**: Offers a single-glance view of global day/night cycles and key city times.  
+   - **How It Works**: Uses a graphical representation with overlaid gradient for dusk-sunset, dawn-sunrise, night (dark transparent), and daytime (clear). Pin markers display city names and current times.
+
+2. **Custom Analog Clocks**  
+   - **What It Does**: Allows users to add multiple analog clocks below the GeoChron. They can pick any timezone from a dropdown, and each clock will show that time zone’s local time.  
+   - **Why It's Important**: Provides flexibility for users to track any additional time zones based on their personal or work needs.  
+   - **How It Works**: Dynamically generates and displays analog clocks on a row. A user action triggers the creation of each new clock, with a chosen time zone.
+
+3. **Persistent Configuration**  
+   - **What It Does**: Saves the user’s chosen custom clocks and loads them automatically on subsequent visits.  
+   - **Why It's Important**: Ensures convenience and continuity of the user’s personalized time zone setup.  
+   - **How It Works**: Stores configuration on the server (or via a simple backend service) associated with the user’s session or credentials.
+
+# User Experience  
+- **User Personas**:  
+  - **Remote Worker/Manager**: Coordinates across different regions, needs an immediate overview of global time zones and day/night cycles.  
+  - **Frequent Traveler**: Desires at-a-glance clarity on multiple time zones.  
+  - **General User**: Curious about global times or wants a simplified world clock.
+
+- **Key User Flows**:  
+  1. **Initial Load**: User visits the page, sees the GeoChron with four major city pins.  
+  2. **Add Custom Clocks**: User opens the dropdown, selects a time zone, and an analog clock is added beneath the map.  
+  3. **Persist Settings**: Upon revisiting, the user sees the exact setup of custom clocks they previously added.  
+
+- **UI/UX Considerations**:  
+  - Keep the interface minimal and intuitive: the GeoChron is prominent at the top.  
+  - Clear icons or pins for each major city to avoid clutter.  
+  - A simple, intuitive dropdown for additional time zones and a visible “Add Clock” button.  
+  - Provide a remove/close option on each clock.  
+  - Night/day transitions on the GeoChron should be visually distinct yet not overwhelming.  
+</context>
+
+<PRD>
+# Technical Architecture  
+- **System Components**:  
+  1. **Front-End Single Page Application (SPA)**: Responsible for rendering the GeoChron clock, the pins for major cities, and the additional analog clocks.  
+  2. **Backend Persistence**: A minimal service to store user clock configurations (e.g., a small database or key-value store).  
+
+- **Data Models**:  
+  - **User Configuration**: 
+    - `userId` or session identifier  
+    - List of time zones selected by the user  
+    - Possibly an order or reference for each clock  
+
+- **APIs and Integrations**:  
+  - **Time Zone API**: Could be a standard library or a third-party library for accurate time calculations, especially if daylight savings adjustments are needed.  
+  - **Internal API Endpoint**:  
+    - **POST** `/save-configuration`: Saves user’s clock setup.  
+    - **GET** `/load-configuration`: Loads user’s saved clock setup.  
+
+- **Infrastructure Requirements**:  
+  - A hosting environment for the SPA (could be a basic web server).  
+  - A lightweight backend (Node.js, Python, etc.) with a small database (SQL or NoSQL) for storing configurations.  
+  - Simple authentication or session tracking to identify returning users (may use cookies or a login system).  
+
+# Development Roadmap  
+- **MVP Requirements**:  
+  1. **GeoChron UI**: Display a world map with real-time day/night gradient.  
+  2. **City Time Pins**: Show local times for London, New York, Dubai, and Japan.  
+  3. **Add/Remove Custom Clocks**: Allow users to select a time zone from a dropdown, and generate analog clocks. Provide an option to remove them.  
+  4. **Persistence**: Implement server-side saving/loading of the user’s custom clock configuration.
+
+- **Future Enhancements**:  
+  1. **User Authentication**: Expand from basic session to individual user accounts.  
+  2. **Responsive Design Improvements**: Optimize for various screen sizes and mobile usage.  
+  3. **Customization Options**: Users can change clock styles, pin styles, or rename labels.  
+  4. **Additional Cities**: Automatically display pins for more major cities or filter city pins.  
+  5. **World Events Layer**: Potentially layer on additional data, like local holidays or events.  
+
+# Logical Dependency Chain  
+1. **Map Rendering and Time Calculation**: Foundation for displaying day/night gradient and dynamic local times.  
+2. **Major City Pins**: Provide immediate, out-of-the-box functionality.  
+3. **Custom Clock Feature**: Allows users to add clocks dynamically – builds upon time zone logic.  
+4. **Persistence Layer**: Save and load user configurations – builds on the custom clock feature.  
+5. **Enhanced Features**: (e.g., improved UI, multiple city pins, personalization) come after the core MVP is proven functional.
+
+# Risks and Mitigations  
+- **Technical Challenges**: Accurately rendering day/night cycle might require careful real-time calculation and an interactive map. **Mitigation**: Use well-documented libraries or existing formulas for global time zone and solar calculations.  
+- **MVP Scope**: Overengineering the map or clock UI could delay the project. **Mitigation**: Start with a basic map library and minimal styling for the analog clocks, ensuring core functionality.  
+- **Resource Constraints**: Keeping the application lightweight so hosting costs stay low. **Mitigation**: Use simple solutions (e.g., local storage or a minimal backend) for configuration storage.
+
+# Appendix  
+- **Research Findings**: The day/night cycle can be visualized using a Lambert azimuthal or a Mercator projection overlay. For a simpler approach, a static day/night overlay image updated periodically is sufficient.  
+- **Technical Specifications**:  
+  - JavaScript-based front-end (React, Vue, or vanilla JS) with a library for time zones (moment-timezone, date-fns, or others).  
+  - Minimal Node.js or Python backend with a straightforward database (SQLite, MongoDB, or even a JSON file for prototypes).  
+</PRD>

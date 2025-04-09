@@ -1,0 +1,147 @@
+.clock-collection {
+  width: 100%;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.collection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.collection-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.layout-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.layout-button {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+}
+
+.layout-button:hover {
+  background-color: #f5f5f5;
+}
+
+.layout-button.active {
+  background-color: #4a6da7;
+  color: white;
+  border-color: #4a6da7;
+}
+
+.grid-icon, .carousel-icon {
+  font-size: 1.2rem;
+}
+
+/* Grid Layout */
+.clocks-container.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  justify-items: center;
+}
+
+/* Carousel Layout */
+.clocks-container.carousel {
+  display: flex;
+  overflow-x: auto;
+  padding: 1rem 0;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #4a6da7 #f5f5f5;
+}
+
+.clocks-container.carousel::-webkit-scrollbar {
+  height: 8px;
+}
+
+.clocks-container.carousel::-webkit-scrollbar-track {
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.clocks-container.carousel::-webkit-scrollbar-thumb {
+  background-color: #4a6da7;
+  border-radius: 4px;
+}
+
+.clocks-container.carousel .clock-item {
+  flex: 0 0 auto;
+  margin: 0 1rem;
+}
+
+.clock-item {
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.clock-item:hover {
+  transform: translateY(-5px);
+}
+
+.remove-clock-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 20;
+}
+
+.clock-item:hover .remove-clock-button {
+  opacity: 1;
+}
+
+.no-clocks-message {
+  text-align: center;
+  padding: 2rem;
+  color: #777;
+  font-style: italic;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .clocks-container.grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  
+  .collection-header h3 {
+    font-size: 1rem;
+  }
+  
+  .layout-button {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.9rem;
+  }
+}

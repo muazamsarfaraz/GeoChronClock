@@ -1,0 +1,57 @@
+.night-overlay {
+  transition: all 0.5s ease;
+  /* Add a gradient effect to the night side */
+  background: radial-gradient(circle at center, rgba(0, 26, 51, 0.7) 0%, rgba(0, 26, 51, 0.5) 100%);
+}
+
+.terminator-line {
+  transition: all 0.5s ease;
+  /* Add a glow effect to the terminator line */
+  filter: drop-shadow(0 0 2px rgba(255, 204, 0, 0.5));
+}
+
+.terminator-tooltip {
+  background-color: rgba(0, 0, 0, 0.7);
+  border: none;
+  color: white;
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 3px;
+}
+
+.subsolar-point {
+  animation: pulse 2s infinite;
+  /* Add a glow effect to the subsolar point */
+  filter: drop-shadow(0 0 5px rgba(255, 204, 0, 0.8));
+}
+
+.subsolar-tooltip {
+  background-color: rgba(0, 0, 0, 0.7);
+  border: none;
+  color: white;
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 3px;
+}
+
+/* Use will-change to optimize animations */
+.night-overlay,
+.terminator-line,
+.subsolar-point {
+  will-change: transform, opacity;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+}

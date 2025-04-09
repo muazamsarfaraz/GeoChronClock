@@ -1,0 +1,124 @@
+.analog-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1rem;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+/* Size variations */
+.analog-clock.small {
+  width: 150px;
+}
+
+.analog-clock.medium {
+  width: 200px;
+}
+
+.analog-clock.large {
+  width: 250px;
+}
+
+/* Theme variations */
+.analog-clock.light .clock-svg {
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.analog-clock.dark .clock-svg {
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+}
+
+.analog-clock.colorful .clock-svg {
+  filter: drop-shadow(0 4px 8px rgba(155, 89, 182, 0.5));
+}
+
+/* SVG styles */
+.clock-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Animation for hands */
+.hour-hand {
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.minute-hand {
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.second-hand {
+  transition: transform 0.1s linear;
+}
+
+/* Hover effects */
+.analog-clock:hover {
+  transform: scale(1.05);
+  z-index: 10;
+}
+
+/* Clock info styles */
+.clock-info {
+  margin-top: 10px;
+  text-align: center;
+  opacity: 0.7;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.clock-info.hovered {
+  opacity: 1;
+  transform: translateY(5px);
+}
+
+.clock-label {
+  font-weight: bold;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+}
+
+.clock-time {
+  font-family: monospace;
+  font-size: 0.9rem;
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+
+/* Theme-specific text colors */
+.analog-clock.dark .clock-label,
+.analog-clock.dark .clock-time {
+  color: #ecf0f1;
+}
+
+.analog-clock.colorful .clock-label {
+  color: #8e44ad;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .analog-clock {
+    margin: 0.5rem;
+  }
+
+  .analog-clock.small {
+    width: 120px;
+  }
+
+  .analog-clock.medium {
+    width: 160px;
+  }
+
+  .analog-clock.large {
+    width: 200px;
+  }
+
+  .clock-label {
+    font-size: 0.8rem;
+  }
+
+  .clock-time {
+    font-size: 0.8rem;
+  }
+}

@@ -1,0 +1,116 @@
+.timezone-selector {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  margin: 1rem 0;
+  width: 100%;
+  max-width: 600px;
+}
+
+.selector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.selector-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.toggle-advanced-button {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.8rem;
+}
+
+.toggle-advanced-button:hover {
+  background-color: #f5f5f5;
+}
+
+.selector-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.timezone-search {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+}
+
+.timezone-dropdown {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+  background-color: white;
+}
+
+.timezone-dropdown optgroup {
+  font-weight: bold;
+  color: #4a6da7;
+}
+
+.timezone-dropdown option {
+  padding: 0.3rem;
+}
+
+.custom-label-input {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+}
+
+.add-clock-button {
+  padding: 0.7rem 1rem;
+  background-color: #4a6da7;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-weight: bold;
+  margin-top: 0.5rem;
+}
+
+.add-clock-button:hover {
+  background-color: #3a5a8f;
+}
+
+.add-clock-button:active {
+  background-color: #2a4a7f;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .timezone-selector {
+    padding: 0.8rem;
+  }
+
+  .selector-header h3 {
+    font-size: 1rem;
+  }
+
+  .toggle-advanced-button {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .add-clock-button {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.9rem;
+  }
+}
