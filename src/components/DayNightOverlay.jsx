@@ -11,70 +11,103 @@ const DayNightOverlay = ({ date = new Date() }) => {
   const previousTimeRef = useRef(null);
 
   useEffect(() => {
-    // Remove any existing overlay
-    if (overlay) {
-      overlay.remove();
-    }
+    try {
+      console.log('Initializing day/night overlay...');
 
-    // Create the day/night overlay
-    const createDayNightOverlay = () => {
-      // Calculate the terminator (day/night boundary)
-      const terminatorPoints = calculateTerminator(date, 720); // Higher resolution for smoother curve
-
-      // Get the subsolar point (where the sun is directly overhead)
-      const subsolarPoint = getSubsolarPoint(date);
-
-      // Create a polygon for the night side
-      const nightPolygon = createNightPolygon(terminatorPoints);
-
-      // Create a circle for the subsolar point
-      const subsolarMarker = createSubsolarMarker(subsolarPoint);
-
-      // Create the terminator line
-      const terminatorLine = createTerminatorLine(terminatorPoints);
-
-      // Create a layer group for the overlay
-      const newOverlay = L.layerGroup([nightPolygon, terminatorLine, subsolarMarker]);
-
-      // Add the overlay to the map
-      newOverlay.addTo(map);
-
-      // Save the overlay for later removal
-      setOverlay(newOverlay);
-    };
-
-    createDayNightOverlay();
-
-    // Set up animation loop for smooth updates
-    const animate = (time) => {
-      if (previousTimeRef.current !== undefined) {
-        const deltaTime = time - previousTimeRef.current;
-
-        // Update every 60 seconds (or when date prop changes)
-        if (deltaTime > 60000) {
-          createDayNightOverlay();
-          previousTimeRef.current = time;
-        }
-      } else {
-        previousTimeRef.current = time;
+      if (!map) {
+        console.error('Map instance is undefined in DayNightOverlay');
+        return;
       }
+
+      // Create the day/night overlay
+      const createDayNightOverlay = () => {
+        try {
+          // Remove any existing overlay
+          if (overlay) {
+            try {
+              overlay.remove();
+            } catch (error) {
+              console.warn('Error removing existing overlay:', error);
+            }
+          }
+
+          // Calculate the terminator (day/night boundary)
+          const terminatorPoints = calculateTerminator(date, 720); // Higher resolution for smoother curve
+
+          // Get the subsolar point (where the sun is directly overhead)
+          const subsolarPoint = getSubsolarPoint(date);
+
+          // Create a polygon for the night side
+          const nightPolygon = createNightPolygon(terminatorPoints);
+
+          // Create a circle for the subsolar point
+          const subsolarMarker = createSubsolarMarker(subsolarPoint);
+
+          // Create the terminator line
+          const terminatorLine = createTerminatorLine(terminatorPoints);
+
+          // Create a layer group for the overlay
+          const newOverlay = L.layerGroup([nightPolygon, terminatorLine, subsolarMarker]);
+
+          // Add the overlay to the map
+          newOverlay.addTo(map);
+
+          // Save the overlay for later removal
+          setOverlay(newOverlay);
+        } catch (error) {
+          console.error('Error creating day/night overlay:', error);
+        }
+      };
+
+      createDayNightOverlay();
+
+      // Set up animation loop for smooth updates
+      const animate = (time) => {
+        try {
+          if (previousTimeRef.current !== undefined) {
+            const deltaTime = time - previousTimeRef.current;
+
+            // Update every 60 seconds (or when date prop changes)
+            if (deltaTime > 60000) {
+              createDayNightOverlay();
+              previousTimeRef.current = time;
+            }
+          } else {
+            previousTimeRef.current = time;
+          }
+
+          requestRef.current = requestAnimationFrame(animate);
+        } catch (error) {
+          console.error('Error in animation frame:', error);
+        }
+      };
 
       requestRef.current = requestAnimationFrame(animate);
-    };
 
-    requestRef.current = requestAnimationFrame(animate);
+      // Cleanup function
+      return () => {
+        console.log('Cleaning up day/night overlay...');
 
-    // Cleanup function
-    return () => {
-      if (overlay) {
-        overlay.remove();
-      }
+        if (overlay) {
+          try {
+            overlay.remove();
+          } catch (error) {
+            console.warn('Error removing overlay during cleanup:', error);
+          }
+        }
 
-      if (requestRef.current) {
-        cancelAnimationFrame(requestRef.current);
-      }
-    };
-  }, [map, date]);
+        if (requestRef.current) {
+          try {
+            cancelAnimationFrame(requestRef.current);
+          } catch (error) {
+            console.warn('Error canceling animation frame:', error);
+          }
+        }
+      };
+    } catch (error) {
+      console.error('Error in DayNightOverlay effect:', error);
+    }
+  }, [map, date, overlay]);
 
   // Create a polygon for the night side
   const createNightPolygon = (terminatorPoints) => {

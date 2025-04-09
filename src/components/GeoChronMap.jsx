@@ -11,35 +11,74 @@ import { getMajorCities } from '../services/timeService';
 // Component to handle map initialization and updates
 const MapController = () => {
   const map = useMap();
+  const zoomControlRef = useRef(null);
 
   useEffect(() => {
-    // Center the map and set zoom level
-    const isMobile = window.innerWidth <= 768;
-    map.setView([20, 0], isMobile ? 1 : 2);
+    try {
+      console.log('Initializing map controller...');
 
-    // Enable basic interactions for better user experience
-    // but disable some to keep the map focused on the time visualization
-    map.doubleClickZoom.disable();
-    map.boxZoom.disable();
+      if (!map) {
+        console.error('Map instance is undefined');
+        return;
+      }
 
-    // Add zoom control to bottom right
-    map.zoomControl.remove(); // Remove default zoom control
-    L.control.zoom({ position: 'bottomright' }).addTo(map);
+      // Center the map and set zoom level
+      const isMobile = window.innerWidth <= 768;
+      map.setView([20, 0], isMobile ? 1 : 2);
 
-    // Disable attribution prefix
-    map.attributionControl.setPrefix('');
+      // Enable basic interactions for better user experience
+      // but disable some to keep the map focused on the time visualization
+      if (map.doubleClickZoom) map.doubleClickZoom.disable();
+      if (map.boxZoom) map.boxZoom.disable();
 
-    // Handle window resize
-    const handleResize = () => {
-      const newIsMobile = window.innerWidth <= 768;
-      map.setView([20, 0], newIsMobile ? 1 : 2);
-    };
+      // Add zoom control to bottom right
+      if (map.zoomControl) {
+        try {
+          map.zoomControl.remove(); // Remove default zoom control
+        } catch (error) {
+          console.warn('Could not remove default zoom control:', error);
+        }
+      }
 
-    window.addEventListener('resize', handleResize);
+      // Add custom zoom control
+      try {
+        zoomControlRef.current = L.control.zoom({ position: 'bottomright' });
+        zoomControlRef.current.addTo(map);
+      } catch (error) {
+        console.warn('Could not add custom zoom control:', error);
+      }
 
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
+      // Disable attribution prefix
+      if (map.attributionControl) {
+        map.attributionControl.setPrefix('');
+      }
+
+      // Handle window resize
+      const handleResize = () => {
+        if (map) {
+          const newIsMobile = window.innerWidth <= 768;
+          map.setView([20, 0], newIsMobile ? 1 : 2);
+        }
+      };
+
+      window.addEventListener('resize', handleResize);
+
+      return () => {
+        console.log('Cleaning up map controller...');
+        window.removeEventListener('resize', handleResize);
+
+        // Clean up zoom control
+        if (zoomControlRef.current && map) {
+          try {
+            map.removeControl(zoomControlRef.current);
+          } catch (error) {
+            console.warn('Could not remove zoom control during cleanup:', error);
+          }
+        }
+      };
+    } catch (error) {
+      console.error('Error in MapController:', error);
+    }
   }, [map]);
 
   return null;
