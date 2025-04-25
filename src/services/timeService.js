@@ -1,4 +1,5 @@
 import moment from 'moment-timezone';
+import { isLocationInDaylight } from '../utils/solarCalculations';
 
 /**
  * Get the current time for a specific timezone
@@ -23,11 +24,7 @@ export const getCurrentTime = (timezone = 'UTC') => {
  * @returns {boolean} - True if it's daytime, false if it's nighttime
  */
 export const isDaytime = (lat, lng) => {
-  // This is a placeholder implementation
-  // A more accurate calculation will be implemented in Task 2
-  const now = moment.utc();
-  const hour = (now.hours() + Math.floor((lng + 180) / 15)) % 24;
-  return hour >= 6 && hour < 18;
+  return isLocationInDaylight(lat, lng);
 };
 
 /**

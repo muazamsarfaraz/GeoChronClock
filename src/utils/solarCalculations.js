@@ -277,13 +277,8 @@ export const calculateTerminator = (date = new Date(), resolution = 360) => {
   const apparentLongitude = getSunApparentLongitude(trueLongitude, julianCentury);
   const declination = getSunDeclination(apparentLongitude, julianCentury);
 
-  // Calculate the terminator
-  const terminatorPoints = [];
-
-  // Calculate the subsolar point (where the sun is directly overhead)
+  // Calculate the subsolar point
   const subsolarLat = declination;
-
-  // Calculate the subsolar longitude
   const equationOfTime = getEquationOfTime(
     julianCentury,
     geometricMeanLongitude,
@@ -292,73 +287,88 @@ export const calculateTerminator = (date = new Date(), resolution = 360) => {
   );
 
   const solarTime = date.getUTCHours() * 60 + date.getUTCMinutes() + date.getUTCSeconds() / 60;
-  const subsolarLng = (solarTime - 720) / 4 - equationOfTime / 60;
+  let subsolarLng = (solarTime - 720) / 4 - equationOfTime / 60;
 
   // Normalize the subsolar longitude to -180 to 180
-  let normalizedSubsolarLng = subsolarLng;
-  while (normalizedSubsolarLng > 180) normalizedSubsolarLng -= 360;
-  while (normalizedSubsolarLng < -180) normalizedSubsolarLng += 360;
+  while (subsolarLng > 180) subsolarLng -= 360;
+  while (subsolarLng < -180) subsolarLng += 360;
+
+  const points = [];
+  const subsolarLatRad = toRadians(subsolarLat);
+  const subsolarLngRad = toRadians(subsolarLng);
+
+  // Helper function for matrix multiplication
+  const multiplyMatrices = (m1, m2) => {
+    const result = Array(3).fill().map(() => Array(3).fill(0));
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        for (let k = 0; k < 3; k++) {
+          result[i][j] += m1[i][k] * m2[k][j];
+        }
+      }
+    }
+    return result;
+  };
+
+  // Create rotation matrices
+  const createRotationMatrix = (axis, angle) => {
+    const c = Math.cos(angle);
+    const s = Math.sin(angle);
+    switch (axis) {
+      case 'x':
+        return [
+          [1, 0, 0],
+          [0, c, -s],
+          [0, s, c]
+        ];
+      case 'y':
+        return [
+          [c, 0, s],
+          [0, 1, 0],
+          [-s, 0, c]
+        ];
+      case 'z':
+        return [
+          [c, -s, 0],
+          [s, c, 0],
+          [0, 0, 1]
+        ];
+    }
+  };
+
+  // Create combined rotation matrix
+  const rotZ = createRotationMatrix('z', subsolarLngRad);
+  const rotY = createRotationMatrix('y', -subsolarLatRad);
+  const combinedRotation = multiplyMatrices(rotY, rotZ);
 
   // Generate points along the terminator
-  // We'll use a higher resolution near the equator and lower near the poles
-  const points = [];
-
-  // First, calculate the antipode (opposite point) of the subsolar point
-  const antiLat = -subsolarLat;
-  let antiLng = normalizedSubsolarLng + 180;
-  if (antiLng > 180) antiLng -= 360;
-
-  // Generate points along the terminator (which is a great circle 90° from the subsolar point)
   for (let i = 0; i <= resolution; i++) {
-    // Use a non-linear distribution to get more points near the equator
     const t = i / resolution;
-    const angle = t * 360; // Angle around the great circle (0-360)
+    const angle = t * 2 * Math.PI;
 
-    // Convert to 3D coordinates (unit sphere)
-    // Start with the subsolar point as the north pole
-    const phi = toRadians(angle);
-    const theta = toRadians(90); // 90 degrees from subsolar point
+    // Start with points on the great circle perpendicular to the sun direction
+    const x = Math.cos(angle);
+    const y = Math.sin(angle);
+    const z = 0;
 
-    // Calculate 3D coordinates
-    const x = Math.sin(theta) * Math.cos(phi);
-    const y = Math.sin(theta) * Math.sin(phi);
-    const z = Math.cos(theta);
-
-    // Rotate the coordinates so the subsolar point is at its actual position
-    // This is a simplified rotation - we're rotating around the axes
-    const subsolarLatRad = toRadians(subsolarLat);
-    const subsolarLngRad = toRadians(normalizedSubsolarLng);
-
-    // Apply rotations (this is a simplified approximation)
-    const x2 = x * Math.cos(subsolarLngRad) - y * Math.sin(subsolarLngRad);
-    const y2 = x * Math.sin(subsolarLngRad) + y * Math.cos(subsolarLngRad);
-    const z2 = z;
-
-    const x3 = x2 * Math.cos(subsolarLatRad) + z2 * Math.sin(subsolarLatRad);
-    const y3 = y2;
-    const z3 = -x2 * Math.sin(subsolarLatRad) + z2 * Math.cos(subsolarLatRad);
+    // Apply the rotation
+    const x2 = combinedRotation[0][0] * x + combinedRotation[0][1] * y + combinedRotation[0][2] * z;
+    const y2 = combinedRotation[1][0] * x + combinedRotation[1][1] * y + combinedRotation[1][2] * z;
+    const z2 = combinedRotation[2][0] * x + combinedRotation[2][1] * y + combinedRotation[2][2] * z;
 
     // Convert back to lat/lng
-    let lat = toDegrees(Math.asin(z3));
-    let lng = toDegrees(Math.atan2(y3, x3));
+    let lat = toDegrees(Math.asin(Math.max(-1, Math.min(1, z2))));
+    let lng = toDegrees(Math.atan2(y2, x2));
 
-    // Handle edge cases and limit values
-    if (isNaN(lat) || !isFinite(lat)) {
-      lat = Math.sign(z3) * 89.9;
-    }
+    // Normalize longitude
+    while (lng > 180) lng -= 360;
+    while (lng < -180) lng += 360;
 
-    if (isNaN(lng) || !isFinite(lng)) {
-      continue; // Skip this point
-    }
-
-    // Add the point
     points.push([lng, lat]);
   }
 
   // Sort points by longitude for proper rendering
-  points.sort((a, b) => a[0] - b[0]);
-
-  return points;
+  return points.sort((a, b) => a[0] - b[0]);
 };
 
 /**

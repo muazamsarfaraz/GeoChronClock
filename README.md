@@ -85,13 +85,15 @@ The map displays pins for major cities (London, New York, Dubai, and Tokyo) with
 
 ## Deployment
 
+### Live Deployment
+
+The application is currently deployed and accessible at: https://geochronclock-production.up.railway.app/
+
 ### Building for Production
 
 ```
 npm run build
 ```
-
-This creates a production-ready build in the `build` folder.
 
 ### Deploying the Frontend
 
@@ -110,17 +112,4 @@ The backend API can be deployed to:
 - AWS Elastic Beanstalk
 - Google Cloud Run
 - DigitalOcean App Platform
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- OpenStreetMap for the map tiles
-- Moment.js for time zone handling
-- The React and Leaflet communities for their excellent documentation
+- Railway (current platform)

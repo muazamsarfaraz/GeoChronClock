@@ -7,8 +7,8 @@ import './DayNightOverlay.css';
 const DayNightOverlay = ({ date = new Date() }) => {
   const map = useMap();
   const [overlay, setOverlay] = useState(null);
-  const requestRef = useRef(null);
-  const previousTimeRef = useRef(null);
+  const intervalRef = useRef(null);
+  const overlayRef = useRef(null);
 
   useEffect(() => {
     try {
@@ -23,9 +23,9 @@ const DayNightOverlay = ({ date = new Date() }) => {
       const createDayNightOverlay = () => {
         try {
           // Remove any existing overlay
-          if (overlay) {
+          if (overlayRef.current) {
             try {
-              overlay.remove();
+              overlayRef.current.remove();
             } catch (error) {
               console.warn('Error removing existing overlay:', error);
             }
@@ -53,61 +53,45 @@ const DayNightOverlay = ({ date = new Date() }) => {
           newOverlay.addTo(map);
 
           // Save the overlay for later removal
+          overlayRef.current = newOverlay;
           setOverlay(newOverlay);
         } catch (error) {
           console.error('Error creating day/night overlay:', error);
         }
       };
 
+      // Initial creation
       createDayNightOverlay();
 
-      // Set up animation loop for smooth updates
-      const animate = (time) => {
-        try {
-          if (previousTimeRef.current !== undefined) {
-            const deltaTime = time - previousTimeRef.current;
-
-            // Update every 60 seconds (or when date prop changes)
-            if (deltaTime > 60000) {
-              createDayNightOverlay();
-              previousTimeRef.current = time;
-            }
-          } else {
-            previousTimeRef.current = time;
-          }
-
-          requestRef.current = requestAnimationFrame(animate);
-        } catch (error) {
-          console.error('Error in animation frame:', error);
-        }
-      };
-
-      requestRef.current = requestAnimationFrame(animate);
+      // Set up interval for updates (every minute)
+      intervalRef.current = setInterval(() => {
+        createDayNightOverlay();
+      }, 60000);
 
       // Cleanup function
       return () => {
         console.log('Cleaning up day/night overlay...');
 
-        if (overlay) {
-          try {
-            overlay.remove();
-          } catch (error) {
-            console.warn('Error removing overlay during cleanup:', error);
-          }
+        // Clear the update interval
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
         }
 
-        if (requestRef.current) {
+        // Remove the overlay
+        if (overlayRef.current) {
           try {
-            cancelAnimationFrame(requestRef.current);
+            overlayRef.current.remove();
+            overlayRef.current = null;
           } catch (error) {
-            console.warn('Error canceling animation frame:', error);
+            console.warn('Error removing overlay during cleanup:', error);
           }
         }
       };
     } catch (error) {
       console.error('Error in DayNightOverlay effect:', error);
     }
-  }, [map, date, overlay]);
+  }, [map, date]);
 
   // Create a polygon for the night side
   const createNightPolygon = (terminatorPoints) => {
@@ -121,33 +105,48 @@ const DayNightOverlay = ({ date = new Date() }) => {
       // Create a polygon that covers the night side of the Earth
       const nightCoordinates = [];
 
-      // First, determine which side of the terminator is in darkness
-      // We'll use the subsolar point as a reference
-      const testPoint = [-subsolarPoint.longitude, 0]; // Point opposite to subsolar point
+      // Determine which side of the terminator is in darkness using the subsolar point
+      // The night side is opposite to the subsolar point
+      const antipodeLng = subsolarPoint.longitude + 180;
+      const antipodeLat = -subsolarPoint.latitude;
 
-      // Add the terminator points (the day/night boundary)
-      // We need to ensure they're in the correct order
+      // Sort terminator points by longitude
       const sortedTerminator = [...terminatorPoints].sort((a, b) => a[0] - b[0]);
 
-      // Create a complete polygon by adding points at the poles
-      // This creates a closed shape that covers the night side
-      nightCoordinates.push([sortedTerminator[0][0], -90]); // South pole at western edge
+      // Find the point on the terminator closest to the antipode
+      const testPoint = sortedTerminator.reduce((closest, point) => {
+        const distToAntipode = Math.abs(point[0] - antipodeLng);
+        const distToClosest = Math.abs(closest[0] - antipodeLng);
+        return distToAntipode < distToClosest ? point : closest;
+      }, sortedTerminator[0]);
+
+      // If the test point's latitude is closer to the antipode's latitude,
+      // we need to reverse the terminator points
+      const shouldReverse = Math.abs(testPoint[1] - antipodeLat) < 
+                          Math.abs(testPoint[1] - subsolarPoint.latitude);
+
+      const orderedTerminator = shouldReverse ? 
+        sortedTerminator.reverse() : sortedTerminator;
+
+      // Create the complete polygon
+      // Start at the south pole on the western edge
+      nightCoordinates.push([orderedTerminator[0][0], -90]);
 
       // Add all terminator points
-      nightCoordinates.push(...sortedTerminator);
+      nightCoordinates.push(...orderedTerminator);
 
-      // Complete the polygon by adding the eastern edge and back to start
-      nightCoordinates.push([sortedTerminator[sortedTerminator.length-1][0], -90]); // South pole at eastern edge
+      // Complete the polygon by adding the eastern edge
+      nightCoordinates.push([orderedTerminator[orderedTerminator.length-1][0], -90]);
 
       // Add points to wrap around the map edges if needed
-      if (sortedTerminator[0][0] > -180) {
-        nightCoordinates.push([-180, -90]); // Bottom left
-        nightCoordinates.push([-180, 90]);  // Top left
+      if (orderedTerminator[0][0] > -180) {
+        nightCoordinates.push([-180, -90]);
+        nightCoordinates.push([-180, 90]);
       }
 
-      if (sortedTerminator[sortedTerminator.length-1][0] < 180) {
-        nightCoordinates.push([180, 90]);  // Top right
-        nightCoordinates.push([180, -90]); // Bottom right
+      if (orderedTerminator[orderedTerminator.length-1][0] < 180) {
+        nightCoordinates.push([180, 90]);
+        nightCoordinates.push([180, -90]);
       }
 
       // Create the polygon with a gradient fill
