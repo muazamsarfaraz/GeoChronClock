@@ -96,55 +96,29 @@ const DayNightOverlay = ({ date = new Date() }) => {
   // Create a polygon for the night side
   const createNightPolygon = (terminatorPoints) => {
     try {
-      console.log('Creating night polygon with terminator points:', terminatorPoints.length);
-
       // Get the subsolar point to determine which side is in darkness
       const subsolarPoint = getSubsolarPoint(date);
-      console.log('Subsolar point:', subsolarPoint);
-
-      // Create a polygon that covers the night side of the Earth
-      const nightCoordinates = [];
-
-      // Determine which side of the terminator is in darkness using the subsolar point
-      // The night side is opposite to the subsolar point
-      const antipodeLng = subsolarPoint.longitude + 180;
-      const antipodeLat = -subsolarPoint.latitude;
 
       // Sort terminator points by longitude
       const sortedTerminator = [...terminatorPoints].sort((a, b) => a[0] - b[0]);
 
-      // Find the point on the terminator closest to the antipode
-      const testPoint = sortedTerminator.reduce((closest, point) => {
-        const distToAntipode = Math.abs(point[0] - antipodeLng);
-        const distToClosest = Math.abs(closest[0] - antipodeLng);
-        return distToAntipode < distToClosest ? point : closest;
-      }, sortedTerminator[0]);
+      // The night side is always the hemisphere opposite the subsolar point
+      // We'll construct the polygon by starting at the south pole at the westernmost longitude,
+      // tracing the terminator, and ending at the south pole at the easternmost longitude.
+      const nightCoordinates = [];
+      // Start at south pole, westernmost longitude
+      nightCoordinates.push([sortedTerminator[0][0], -90]);
+      // Trace the terminator
+      nightCoordinates.push(...sortedTerminator);
+      // End at south pole, easternmost longitude
+      nightCoordinates.push([sortedTerminator[sortedTerminator.length - 1][0], -90]);
 
-      // If the test point's latitude is closer to the antipode's latitude,
-      // we need to reverse the terminator points
-      const shouldReverse = Math.abs(testPoint[1] - antipodeLat) < 
-                          Math.abs(testPoint[1] - subsolarPoint.latitude);
-
-      const orderedTerminator = shouldReverse ? 
-        sortedTerminator.reverse() : sortedTerminator;
-
-      // Create the complete polygon
-      // Start at the south pole on the western edge
-      nightCoordinates.push([orderedTerminator[0][0], -90]);
-
-      // Add all terminator points
-      nightCoordinates.push(...orderedTerminator);
-
-      // Complete the polygon by adding the eastern edge
-      nightCoordinates.push([orderedTerminator[orderedTerminator.length-1][0], -90]);
-
-      // Add points to wrap around the map edges if needed
-      if (orderedTerminator[0][0] > -180) {
+      // Optionally, close the polygon along the map edges if needed
+      if (sortedTerminator[0][0] > -180) {
         nightCoordinates.push([-180, -90]);
         nightCoordinates.push([-180, 90]);
       }
-
-      if (orderedTerminator[orderedTerminator.length-1][0] < 180) {
+      if (sortedTerminator[sortedTerminator.length - 1][0] < 180) {
         nightCoordinates.push([180, 90]);
         nightCoordinates.push([180, -90]);
       }
